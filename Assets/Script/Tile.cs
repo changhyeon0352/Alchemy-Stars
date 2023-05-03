@@ -51,6 +51,10 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 
 	public void OnPointerEnter(PointerEventData eventData)
 	{
+		if(conneter.IsContainTile(this))
+		{
+			conneter.RemoveFromTileToLast(this);
+		}
 		if(!isOccupied&&conneter.IsConnetStart&&conneter.LastTile.color==color&&IsNearTile(conneter.LastTile))
 		{
 			conneter.AddTile(this);

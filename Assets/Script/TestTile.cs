@@ -10,7 +10,8 @@ public class TestTile : MonoBehaviour
 	[SerializeField]
 	Transform planeTr;
 	const int size = 9;
-
+	[SerializeField]
+	Transform tr;
 
 	private void Start()
 	{
@@ -36,6 +37,6 @@ public class TestTile : MonoBehaviour
 			pos.z++;
 			pos.x -= size;
 		}
-		
+		tr.localScale = new Vector3(0.7f,1,1);
 	}
 }

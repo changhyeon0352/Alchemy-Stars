@@ -21,20 +21,21 @@ public class TileConneter : MonoBehaviour
 	}
 	public void AddTile(Tile tile)
 	{
-		if(connectedLists.Contains(tile))
-		{
-			int index=connectedLists.IndexOf(tile)+1;
-			if (index >= connectedLists.Count)
-				return;
-			connectedLists.RemoveRange(index, connectedLists.Count - index);
-		}
-		else
-		{
-			connectedLists.Add(tile);
-			Debug.Log("Add " + tile.Pos);
-		}
-		
+		connectedLists.Add(tile);
+		Debug.Log("Add " + tile.Pos);
 		ConnetLine();
+	}
+	public void RemoveFromTileToLast(Tile tile)
+	{
+		int index = connectedLists.IndexOf(tile) + 1;
+		if (index >= connectedLists.Count)
+			return;
+		connectedLists.RemoveRange(index, connectedLists.Count - index);
+		ConnetLine();
+	}
+	public bool IsContainTile(Tile tile)
+	{
+		return connectedLists.Contains(tile);
 	}
 	public void EndConneting()
 	{
@@ -51,7 +52,7 @@ public class TileConneter : MonoBehaviour
 		Vector3[] positions3D=new Vector3[connectedLists.Count];
 		for(int i=0;i<connectedLists.Count;i++)
 		{
-			positions3D[i] = new Vector3(connectedLists[i].Pos.y-4, 0.1f, connectedLists[i].Pos.x-4);
+			positions3D[i] = connectedLists[i].transform.position + Vector3.up * 0.1f;
 		}
 		lineRenderer.enabled = true;
 		lineRenderer.positionCount = positions3D.Length;
