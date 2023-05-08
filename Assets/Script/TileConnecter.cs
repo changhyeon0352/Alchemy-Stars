@@ -31,6 +31,7 @@ public class TileConnecter : MonoBehaviour
 	{
 		if (connectedTileList == null)
 			connectedTileList = new List<Tile>();
+		connectedTileList.Clear();
 		connectedTileList.Add(player.tile);
 	}
 	public void StartConnecting(Tile tile)
@@ -68,6 +69,7 @@ public class TileConnecter : MonoBehaviour
 			}
 			connectedTileList.Clear();
 			isConnetStart = false;
+
 		}
 		lineRenderer.enabled = false;
 	}

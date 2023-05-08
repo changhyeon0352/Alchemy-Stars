@@ -13,6 +13,10 @@ public class Player : MonoBehaviour
     Animator animator;
 	public Tile tile;
 	TilePlate tilePlate;
+	Unit enemy;
+	int damage;
+	[SerializeField]
+	TurnManager turnManager;
 
     void Start()
     {
@@ -34,8 +38,9 @@ public class Player : MonoBehaviour
 		for (int i = 0; i < connectedTiles.Length; i++)
 		{
 			yield return StartCoroutine(Attack(tilePlate.GetAdjacentEnemyTilePos(connectedTiles[i].Pos.x, connectedTiles[i].Pos.y)));
-			if(i>connectedTiles.Length-2)
+			if(i==connectedTiles.Length-1)
 			{
+				SetTile(connectedTiles[i]);
 				break;
 			}
 			float timeElapsed = 0;
@@ -48,8 +53,10 @@ public class Player : MonoBehaviour
 				timeElapsed +=Time.deltaTime;
 				yield return null;
 			}
+			
 		}
 		animator.SetInteger("State",(int)State.Idle);
+		turnManager.TurnEnd();
 	}
 	private IEnumerator Attack(Vector2Int[] enemyPoss)
 	{
@@ -58,11 +65,16 @@ public class Player : MonoBehaviour
 		{
 			Tile enemyTile = tilePlate.GetTile(enemyPos.x, enemyPos.y);
 			transform.LookAt(enemyTile.transform);
-			//animator.SetTrigger("Attack");
-			enemyTile.Unit.TakeDamage(damage);
+			enemy = enemyTile.Unit;
+			animator.SetTrigger("Attack");
+			
 			yield return new WaitForSeconds(1f);
 			
 		}
 	}
-	
+	public void Hit()
+	{
+		enemy.TakeDamage(damage);
+		enemy = null;
+	}
 }
