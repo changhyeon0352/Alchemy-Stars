@@ -4,34 +4,42 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 
-public enum TileColor {
-    blue=0,
-    green,
-    red,
-    yellow 
+public enum EelementAttributes {
+    water=0,
+    wind,
+    fire,
+    lightning 
 }
-public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPointerEnterHandler,IPointerExitHandler,IPointerUpHandler
+public enum TileState { 
+	empty=0,
+	player,
+	enemy
+}
+public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPointerEnterHandler,IPointerUpHandler
 {
 	private int x;
 	private int y;
-	TileColor color=TileColor.red;
-	private bool isOccupied;
+	EelementAttributes color=EelementAttributes.fire;
+	private TileState tileState;
     [SerializeField]
     private Material[] colorMaterials;
-	TileConneter conneter;
+	TileConnecter conneter;
 	bool isConneting=false;
+	private Unit unit;
 
+	public Unit Unit { get { return unit; } }
+	public TileState TileState { get { return tileState; } }
 	public Vector2Int Pos { get { return new Vector2Int(x,y); } }
-	public TileColor Color { get { return color; } }
-	public void Initialize(int x, int y, TileColor color)
+	public EelementAttributes Color { get { return color; } }
+	public void Initialize(int x, int y, EelementAttributes color)
 	{
 		this.x = x;
 		this.y = y;
 		ChangeColor(color);
-		this.isOccupied = false;
-		conneter = FindObjectOfType<TileConneter>();
+		this.tileState = TileState.empty;
+		conneter = FindObjectOfType<TileConnecter>();
 	}
-    public void ChangeColor(TileColor tileColor)
+    public void ChangeColor(EelementAttributes tileColor)
     {
 		color = tileColor;
         Renderer renderer = GetComponent<Renderer>();
@@ -40,41 +48,40 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 
 	public void OnPointerClick(PointerEventData eventData)
 	{
-		
+		//몬스터가 있다면 그 정보를 넘김
 		
 	}
 
 	public void OnPointerDown(PointerEventData eventData)
 	{
-		conneter.StartConneting(this);
+			if (tileState == TileState.empty && IsAdjacentTile(conneter.LastTile))
+			{
+			conneter.StartConnecting(this);
+			}
 	}
 
 	public void OnPointerEnter(PointerEventData eventData)
 	{
-		if(conneter.IsContainTile(this))
+		if(conneter.IsConnetStart)
 		{
-			conneter.RemoveFromTileToLast(this);
+			if (conneter.IsContainTile(this))
+			{
+				conneter.RemoveFromTileToLast(this);
+			}
+			else if (tileState== TileState.empty && conneter.LastTile.color == color && IsAdjacentTile(conneter.LastTile))
+			{
+				conneter.AddTile(this);
+			}
 		}
-		if(!isOccupied&&conneter.IsConnetStart&&conneter.LastTile.color==color&&IsNearTile(conneter.LastTile))
-		{
-			conneter.AddTile(this);
-		}
+		
 	}
 
-	public void OnPointerExit(PointerEventData eventData)
-	{
-		//foreach(Vector3 pos in connectedTilePositions)
-		//{
-		//	Debug.Log(pos);
-		//}
-		//connectedTilePositions.Clear();
-	}
 
 	public void OnPointerUp(PointerEventData eventData)
 	{
 		conneter.EndConneting();
 	}
-	private bool IsNearTile(Tile tile)
+	private bool IsAdjacentTile(Tile tile)
 	{
 		bool result = false;
 		if (this == tile)
@@ -86,5 +93,12 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 			result = true;
 		}
 		return result;
+	}
+	public void SetUnit(Unit unit,TileState tileState)
+	{
+		this.unit = unit;
+		this.tileState = tileState;
+		unit.transform.position = this.transform.position;
+		
 	}
 }
