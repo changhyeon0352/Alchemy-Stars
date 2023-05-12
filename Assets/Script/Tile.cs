@@ -13,7 +13,7 @@ public enum EelementAttributes {
 public enum TileState { 
 	empty=0,
 	player,
-	enemy
+	monster
 }
 public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPointerEnterHandler,IPointerUpHandler
 {
@@ -24,7 +24,6 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
     [SerializeField]
     private Material[] colorMaterials;
 	TileConnecter conneter;
-	bool isConneting=false;
 	private Unit unit;
 
 	public Unit Unit { get { return unit; } }
@@ -36,7 +35,7 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 		this.x = x;
 		this.y = y;
 		ChangeColor(color);
-		this.tileState = TileState.empty;
+		tileState = TileState.empty;
 		conneter = FindObjectOfType<TileConnecter>();
 	}
     public void ChangeColor(EelementAttributes tileColor)
@@ -86,8 +85,8 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 		bool result = false;
 		if (this == tile)
 			return false;
-		int xdiff = Mathf.Abs(this.x - tile.x);
-		int ydiff = Mathf.Abs(this.y - tile.y);
+		int xdiff = Mathf.Abs(x - tile.x);
+		int ydiff = Mathf.Abs(y - tile.y);
 		if(xdiff<=1&&ydiff<=1)
 		{
 			result = true;
@@ -98,7 +97,12 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 	{
 		this.unit = unit;
 		this.tileState = tileState;
-		unit.transform.position = this.transform.position;
-		
+		if (unit != null)
+		{
+			unit.transform.position = this.transform.position;
+			unit.SetPosition(Pos);
+		}
+			
+
 	}
 }

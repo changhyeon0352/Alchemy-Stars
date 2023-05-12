@@ -9,23 +9,27 @@ public class Test : MonoBehaviour
 	public TileConnecter tileConnecter;
 	[SerializeField]
 	GameObject enemyPrefab;
-
+	public TurnManager turnManager;
+	public MonsterController monsterController;
+	private void Start()
+	{
+		Tile tile = tilePlate.GetTile(new Vector2Int(0, 4));
+		tile.SetUnit(player, TileState.player);
+	}
 	private void Update()
 	{
 		if(Input.GetKeyDown(KeyCode.A))
 		{
-			Tile tile = tilePlate.GetTile(0, 4);
-			player.SetTile(tile);
-			tileConnecter.AddPlayerTile();
-
-			for(int i = 0; i < 4; i++)
+			for (int i = 0; i < 4; i++)
 			{
-				Enemy enemy = Instantiate(enemyPrefab).GetComponent<Enemy>();
-				int x = Random.RandomRange(2, 7);
-				int y= Random.RandomRange(2, 7);
-				Tile enemyTile = tilePlate.GetTile(x, y);
-				enemyTile.SetUnit(enemy, TileState.enemy);
+				monsterController.SpawnEnemy();
 			}
+			
+
+			turnManager.enabled = true;
+			
+
+			
 			
 		}
 		

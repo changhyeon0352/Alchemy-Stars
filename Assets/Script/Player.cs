@@ -8,73 +8,42 @@ public enum State
 	Run,
 	Attack
 }
-public class Player : MonoBehaviour
+public class Player : Unit
 {
-    Animator animator;
-	public Tile tile;
-	TilePlate tilePlate;
-	Unit enemy;
-	int damage;
+	int damage=10;
 	[SerializeField]
 	TurnManager turnManager;
 
-    void Start()
-    {
-        animator = GetComponentInChildren<Animator>();
-		tilePlate = FindObjectOfType<TilePlate>();
-    }
-	public void SetTile(Tile tile)
-	{
-		this.tile = tile;
-		transform.position = tile.transform.position;
-	}
-    
-	public IEnumerator Move(Tile[] connectedTiles)
-	{
-		animator.SetInteger("State", (int)State.Run);
-		transform.position=connectedTiles[0].transform.position;
-		float sec = 1f;
-		//sec 초 동안  connectedPoss[i]에서 connectedPoss[i+1]로 이동하게 구현해봐
-		for (int i = 0; i < connectedTiles.Length; i++)
-		{
-			yield return StartCoroutine(Attack(tilePlate.GetAdjacentEnemyTilePos(connectedTiles[i].Pos.x, connectedTiles[i].Pos.y)));
-			if(i==connectedTiles.Length-1)
-			{
-				SetTile(connectedTiles[i]);
-				break;
-			}
-			float timeElapsed = 0;
-			float distance= Vector3.Distance(connectedTiles[i].transform.position, connectedTiles[i+1].transform.position);
-			float speed= distance/ sec;
-			transform.LookAt(connectedTiles[i + 1].transform);
-			while (timeElapsed < sec)
-			{
-				transform.position += speed * (connectedTiles[i + 1].transform.position - connectedTiles[i].transform.position).normalized * Time.deltaTime;
-				timeElapsed +=Time.deltaTime;
-				yield return null;
-			}
-			
-		}
-		animator.SetInteger("State",(int)State.Idle);
-		turnManager.TurnEnd();
-	}
-	private IEnumerator Attack(Vector2Int[] enemyPoss)
-	{
-		int damage = 10;
-		foreach(Vector2Int enemyPos in enemyPoss)
-		{
-			Tile enemyTile = tilePlate.GetTile(enemyPos.x, enemyPos.y);
-			transform.LookAt(enemyTile.transform);
-			enemy = enemyTile.Unit;
-			animator.SetTrigger("Attack");
-			
-			yield return new WaitForSeconds(1f);
-			
-		}
-	}
+	
+	
 	public void Hit()
 	{
 		enemy.TakeDamage(damage);
 		enemy = null;
+	}
+
+	public override IEnumerator UnitActualMove(Tile[] pathTiles)
+	{
+		animator.SetInteger("State", (int)State.Run);
+		float sec = 1f;
+		yield return StartCoroutine(Attack(tilePlate.GetAdjacentEnemyTilePos(Pos)));
+		//sec 초 동안  connectedPoss[i]에서 connectedPoss[i+1]로 이동하게 구현해봐
+		for (int i = 0; i < pathTiles.Length-1; i++)
+		{
+			float timeElapsed = 0;
+			float distance = Vector3.Distance(pathTiles[i].transform.position, pathTiles[i + 1].transform.position);
+			float speed = distance / sec;
+			transform.LookAt(pathTiles[i + 1].transform);
+			while (timeElapsed < sec)
+			{
+				transform.position += speed * (pathTiles[i + 1].transform.position - pathTiles[i].transform.position).normalized * Time.deltaTime;
+				timeElapsed += Time.deltaTime;
+				yield return null;
+			}
+			SetPosition(pathTiles[i + 1].Pos);
+			yield return StartCoroutine(Attack(tilePlate.GetAdjacentEnemyTilePos(pathTiles[i+1].Pos)));
+		}
+		animator.SetInteger("State", (int)State.Idle);
+		turnManager.TurnEnd();
 	}
 }

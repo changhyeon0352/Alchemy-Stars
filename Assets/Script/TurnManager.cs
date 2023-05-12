@@ -11,11 +11,13 @@ public class TurnManager : MonoBehaviour
 	private bool isComplteTurn=false;
 	[SerializeField]
 	TileConnecter tileConnecter;
+	[SerializeField]
+	MonsterController monsterController;
 	private void Start()
 	{
 		isPlayerTurn = true;
 		isGameOver = false;
-
+		monsterController=FindObjectOfType<MonsterController>();
 		StartCoroutine(GameLoop());
 	}
 
@@ -59,7 +61,7 @@ public class TurnManager : MonoBehaviour
 		// 플레이어 입력을 막기 위해 투명한 창을 활성화하고 클릭을 막습니다.
 		blockingWindow.SetActive(true);
 
-		yield return new WaitForSeconds(1f);
+		yield return StartCoroutine(monsterController.MonsterTurn());
 
 		// 플레이어 입력을 다시 허용하기 위해 투명한 창을 비활성화하고 클릭을 허용합니다.
 		blockingWindow.SetActive(false);

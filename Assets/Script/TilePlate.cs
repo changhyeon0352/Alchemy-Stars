@@ -1,72 +1,86 @@
-using System;
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class TilePlate : MonoBehaviour
 {
-	[SerializeField]
-	private GameObject tilePrefab;
-	[SerializeField]
-	Transform planeTr;
-	const int size = 9;
-	[SerializeField]
-	Transform tr;
-	Tile[,] tiles;
+	List<Monster> enemyList;
+	Player player;
+	public const int size = 9;
+	Tile[,] tileGrid;
 
+	public Player Player { get { return player; } }
+	public Vector2Int PlayerPos { get { return player.Pos; } }
+	public Tile[,] TileGrid { get { return tileGrid; } }
 	private void Awake()
 	{
-		InitializeRandomTIlePlate();
+		enemyList = new List<Monster>();
+		player = FindObjectOfType<Player>();
+		InitializeTilePlate();
 	}
 
-	private void InitializeRandomTIlePlate()
+	private void InitializeTilePlate()
 	{
-		tiles = new Tile[size, size];
-		float f = (float)size / 2f - 0.5f;
-		Vector3 pos = new Vector3(-f, 0, -f);
-		for (int i = 0; i < size; i++)
+		tileGrid = new Tile[size, size];
+		Tile[] tiles = GetComponentsInChildren<Tile>();
+		foreach(Tile tile in tiles)
 		{
-
-			for (int j = 0; j < size; j++)
-			{
-				if ((i % (size - 1) == 0 && j % (size - 2) <= 1) || (j % (size - 1) == 0 && i % (size - 2) <= 1))
-				{
-					pos.x++;
-					continue;
-				}
-				GameObject obj = Instantiate(tilePrefab, pos, Quaternion.identity, planeTr);
-				Tile newTile = obj.GetComponent<Tile>();
-				int count = Enum.GetNames(typeof(EelementAttributes)).Length;
-				int rand = UnityEngine.Random.Range(0, count);
-				newTile.Initialize(i, j, (EelementAttributes)rand);
-				tiles[i, j] = newTile;
-				pos.x++;
-			}
-			pos.z++;
-			pos.x -= size;
+			
+			string str = tile.name;
+			int i = int.Parse(str[5].ToString());
+			int j = int.Parse(str[7].ToString());
+			int rand = UnityEngine.Random.Range(0, 4);
+			tile.Initialize(i, j, (EelementAttributes)rand);
+			//tile.
+			tileGrid[i, j] = tile;
 		}
-		tr.localScale = new Vector3(0.7f, 1, 1);
+		
 	}
 
-	public Tile GetTile(int x, int y)
+	public Tile GetTile(Vector2Int pos)
 	{
-		return tiles[x, y];
+		return tileGrid[pos.x, pos.y];
 	}
-	public Vector2Int[] GetAdjacentEnemyTilePos(int x, int y)
+	public Vector2Int[] GetAdjacentEnemyTilePos(Vector2Int pos)
 	{
 		List<Vector2Int> enemyPositions = new List<Vector2Int>();
-		for (int i = -1; i < 2; i ++)
+		int[] dx = { -1, 1, 0, 0 };
+		int[] dy = { 0, 0, -1, 1 };
+		for(int i=0;i<dx.Length;i++)
 		{
-			for(int j=-1; j<2;j++)
+			if (pos.x + dx[i]<9&&pos.x + dx[i]>-1&& pos.y + dy[i] < 9 && pos.y + dy[i] > -1&&
+				tileGrid[pos.x + dx[i], pos.y + dy[i]]!=null&& 
+				tileGrid[pos.x + dx[i], pos.y + dy[i]].TileState == TileState.monster)
 			{
-				if (x+i>=0&&x+i<9&& y + i >= 0 && y + i < 9&&Mathf.Abs(i+j)==1&&
-					tiles[x + i, y + j] !=null&& tiles[x +i, y+j].TileState == TileState.enemy)
-				{
-					enemyPositions.Add(new Vector2Int(x + i, y + j));
-				}
+				enemyPositions.Add(new Vector2Int(pos.x + dx[i], pos.y + dy[i]));
 			}
 		}
 		return enemyPositions.ToArray();
+	}
+
+	public IEnumerator Move(Unit unit, Tile[] path)
+	{
+		TileState newtileState = unit == player ? TileState.player : TileState.monster;
+		GetTile(unit.Pos).SetUnit(null,TileState.empty);
+		yield return StartCoroutine(unit.UnitActualMove(path));
+		GetTile(unit.Pos).SetUnit(unit,newtileState);
+	}
+	public void PlaceMonsterAtRandomTile(Unit unit)
+	{
+		
+		bool isEnd = false;
+		while(!isEnd)
+		{
+			int randx = Random.Range(1, 8);
+			int randy = Random.Range(1, 8);
+			if (tileGrid[randx,randy].TileState==TileState.empty)
+			{
+				tileGrid[randx, randy].SetUnit(unit, TileState.monster);
+				isEnd = true;
+			}
+		}
+
 		
 	}
 }

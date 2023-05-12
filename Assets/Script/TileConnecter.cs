@@ -8,7 +8,7 @@ public class TileConnecter : MonoBehaviour
 	bool isConnetStart=false;
 	[SerializeField]
 	LineRenderer lineRenderer;
-	Player player;
+	TilePlate tilePlate;
 	public Tile LastTile { get { return connectedTileList[connectedTileList.Count-1]; } }
 
 	public bool IsConnetStart { get { return isConnetStart; } }
@@ -20,19 +20,14 @@ public class TileConnecter : MonoBehaviour
 		{
 			lineRenderer = FindObjectOfType<LineRenderer>();
 		}
-		player = FindObjectOfType<Player>();
-	}
-	private void Start()
-	{
-		
-
+		tilePlate = FindObjectOfType<TilePlate>();
 	}
 	public void AddPlayerTile()
 	{
 		if (connectedTileList == null)
 			connectedTileList = new List<Tile>();
 		connectedTileList.Clear();
-		connectedTileList.Add(player.tile);
+		connectedTileList.Add(tilePlate.GetTile(tilePlate.PlayerPos));
 	}
 	public void StartConnecting(Tile tile)
 	{
@@ -62,7 +57,8 @@ public class TileConnecter : MonoBehaviour
 	{
 		if (connectedTileList.Count > 1)
 		{
-			StartCoroutine(player.Move(connectedTileList.ToArray()));
+			StartCoroutine(tilePlate.Move(tilePlate.Player, connectedTileList.ToArray()));
+			//StartCoroutine(player.Move(connectedTileList.ToArray()));
 			foreach (Tile tile in connectedTileList)
 			{
 				Debug.Log("«ÿ¡¶" + tile.Pos);
