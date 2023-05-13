@@ -10,32 +10,41 @@ public abstract class Unit : MonoBehaviour
 	protected Animator animator;
 	protected TilePlate tilePlate;
 	protected Unit enemy;
-	protected int damage=10;
-	public Vector2Int Pos { get { return position; } }
+	protected UnitData data;
+
+	public UnitData Data { get { return data; } }
+	public virtual Vector2Int Pos { get { return position; } }
+	public abstract int Hp { get; protected set; }
 	protected virtual void Awake()
 	{
 		animator = GetComponent<Animator>();
-		hp = hpMax;
 		tilePlate=FindObjectOfType<TilePlate>();
 	}
-	
+	public void Initialize(UnitData data)
+	{
+		this.data = data;
+		hpMax = data.HP;
+		hp = hpMax;
+	}
+
 	public abstract IEnumerator UnitActualMove(Tile[] pathTiles);
 	
 	public void SetPosition(Vector2Int position)
 	{
 		this.position = position;
+		transform.position = tilePlate.GetTile(position).transform.position;
 	}
 	public virtual void TakeDamage(int damage)
 	{
 		animator.SetTrigger("Hit");
-		hp -= damage;
-		if (hp <= 0)
+		Hp -= damage;
+		if (Hp <= 0)
 		{
-			Debug.Log($"{this.name}가 죽었다");
+			Debug.Log($"{data.Name}가 죽었다");
 		}
 		else
 		{
-			Debug.Log($"{this.name}는 {damage}의 데미지를 입었다\n남은 체력 {hp}");
+			Debug.Log($"{data.Name}는 {damage}의 데미지를 입었다\n남은 체력 {Hp}");
 		}
 	}
 	protected IEnumerator Attack(Vector2Int[] enemyPoss)
@@ -51,9 +60,9 @@ public abstract class Unit : MonoBehaviour
 
 		}
 	}
-	public void Hit()
+	public  void Hit()
 	{
-		enemy.TakeDamage(damage);
+		enemy.TakeDamage(data.Atk);
 		enemy = null;
 	}
 }

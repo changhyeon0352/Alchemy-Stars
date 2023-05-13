@@ -9,7 +9,7 @@ public class MonsterController : MonoBehaviour
 	private List<Monster> monsterList=new List<Monster>();
 	TilePlate tilePlate;
 	public GameObject EnemyPrefab;
-	
+	public UnitData unitData;
 	private void Awake()
 	{
 		tilePlate = FindObjectOfType<TilePlate>();
@@ -33,7 +33,7 @@ public class MonsterController : MonoBehaviour
 				}
 				
 			}
-			List<Vector2Int> path=aStar.FindPath(monster.Pos, tilePlate.PlayerPos);
+			List<Vector2Int> path=aStar.FindPath(monster.Pos, tilePlate.Player.Pos);
 			if(path.Count>monster.MoveLength)
 			{
 				for(int i=0; path.Count>monster.MoveLength; i++)
@@ -55,6 +55,7 @@ public class MonsterController : MonoBehaviour
 	{
 		GameObject obj=Instantiate(EnemyPrefab);
 		Monster unit =obj.GetComponent<Monster>();
+		unit.Initialize(unitData);
 		monsterList.Add(unit);
 		tilePlate.PlaceMonsterAtRandomTile(unit);
 

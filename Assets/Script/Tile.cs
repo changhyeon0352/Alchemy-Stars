@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UIElements;
 
-public enum EelementAttributes {
+public enum ElementAttribute {
     water=0,
     wind,
     fire,
@@ -19,7 +19,7 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 {
 	private int x;
 	private int y;
-	EelementAttributes color=EelementAttributes.fire;
+	ElementAttribute elementAttribute=ElementAttribute.fire;
 	private TileState tileState;
     [SerializeField]
     private Material[] colorMaterials;
@@ -29,8 +29,8 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 	public Unit Unit { get { return unit; } }
 	public TileState TileState { get { return tileState; } }
 	public Vector2Int Pos { get { return new Vector2Int(x,y); } }
-	public EelementAttributes Color { get { return color; } }
-	public void Initialize(int x, int y, EelementAttributes color)
+	public ElementAttribute ElementAttribute { get { return elementAttribute; } }
+	public void Initialize(int x, int y, ElementAttribute color)
 	{
 		this.x = x;
 		this.y = y;
@@ -38,11 +38,11 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 		tileState = TileState.empty;
 		conneter = FindObjectOfType<TileConnecter>();
 	}
-    public void ChangeColor(EelementAttributes tileColor)
+    public void ChangeColor(ElementAttribute tileColor)
     {
-		color = tileColor;
+		elementAttribute = tileColor;
         Renderer renderer = GetComponent<Renderer>();
-        renderer.material = colorMaterials[(int)color];
+        renderer.material = colorMaterials[(int)elementAttribute];
     }
 
 	public void OnPointerClick(PointerEventData eventData)
@@ -67,7 +67,7 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 			{
 				conneter.RemoveFromTileToLast(this);
 			}
-			else if (tileState== TileState.empty && conneter.LastTile.color == color && IsAdjacentTile(conneter.LastTile))
+			else if (tileState== TileState.empty && conneter.ElementAttribute == elementAttribute && IsAdjacentTile(conneter.LastTile))
 			{
 				conneter.AddTile(this);
 			}

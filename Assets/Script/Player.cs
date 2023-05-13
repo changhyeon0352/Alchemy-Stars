@@ -1,49 +1,81 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public enum State
+
+public class Player : MonoBehaviour
 {
-	Idle=0,
-	Run,
-	Attack
-}
-public class Player : Unit
-{
-	int damage=10;
-	[SerializeField]
+    public UnitData[] heroDatas;
+	HeroUnit[] heroUnits;
+	HeroUnit leaderUnit;
+	Vector2Int position;
+	TilePlate tilePlate;
 	TurnManager turnManager;
 
-	
-	
-	public void Hit()
+	int hpMax;
+	int hp;
+	public Vector2Int Pos { get { return position; } }
+	public HeroUnit LeaderUnit { get { return leaderUnit; } }
+	public int Hp { get { return hp; }set { hp = value; } }
+
+	private void Awake()
 	{
-		enemy.TakeDamage(damage);
-		enemy = null;
+		tilePlate = FindObjectOfType<TilePlate>();
+		turnManager=FindObjectOfType<TurnManager>();
+
 	}
 
-	public override IEnumerator UnitActualMove(Tile[] pathTiles)
+	public void Initialize(int x, int y)
 	{
-		animator.SetInteger("State", (int)State.Run);
-		float sec = 1f;
-		yield return StartCoroutine(Attack(tilePlate.GetAdjacentEnemyTilePos(Pos)));
-		//sec 초 동안  connectedPoss[i]에서 connectedPoss[i+1]로 이동하게 구현해봐
-		for (int i = 0; i < pathTiles.Length-1; i++)
+		position = new Vector2Int(x, y);
+		heroUnits=new HeroUnit[heroDatas.Length];
+		
+		for(int i = 0; i < heroDatas.Length; i++)
 		{
-			float timeElapsed = 0;
-			float distance = Vector3.Distance(pathTiles[i].transform.position, pathTiles[i + 1].transform.position);
-			float speed = distance / sec;
-			transform.LookAt(pathTiles[i + 1].transform);
-			while (timeElapsed < sec)
+			hpMax += heroDatas[i].HP;
+			heroUnits[i]= Instantiate(heroDatas[i].Prefab,transform).GetComponent<HeroUnit>();
+			heroUnits[i].Initialize(heroDatas[i]);
+			heroUnits[i].SetPosition(position);
+			if (i != 0)
 			{
-				transform.position += speed * (pathTiles[i + 1].transform.position - pathTiles[i].transform.position).normalized * Time.deltaTime;
-				timeElapsed += Time.deltaTime;
-				yield return null;
+				heroUnits[i].gameObject.SetActive(false);
 			}
-			SetPosition(pathTiles[i + 1].Pos);
-			yield return StartCoroutine(Attack(tilePlate.GetAdjacentEnemyTilePos(pathTiles[i+1].Pos)));
+			
 		}
-		animator.SetInteger("State", (int)State.Idle);
+		hp = hpMax;
+		leaderUnit = heroUnits[0];
+		Tile tile = tilePlate.GetTile(Pos);
+		tile.SetUnit(LeaderUnit,TileState.player);
+		leaderUnit.transform.position = tile.transform.position;
+	}
+	public IEnumerator playerMove(Tile[] path,ElementAttribute lineElement)
+	{
+		HeroUnit[] elementUnits = heroUnits.Where(hero => (hero.Data.ElementAttribute == lineElement||hero==leaderUnit)).ToArray();
+		for (int i = 0; i < elementUnits.Length; i++)
+		{
+			elementUnits[i].gameObject.SetActive(true);
+			elementUnits[i].transform.position = path[0].transform.position;
+			if(i< elementUnits.Length-1)
+			{
+				StartCoroutine(tilePlate.Move(elementUnits[i], path));
+				yield return new WaitForSeconds(1);
+			}
+			else
+			{
+				yield return StartCoroutine(tilePlate.Move(elementUnits[i], path));
+
+			}
+		}
+		position = path[path.Length-1].Pos;
+		foreach(HeroUnit heroUnit in heroUnits)
+		{
+			heroUnit.SetPosition(position);
+			if(heroUnit!=leaderUnit)
+			{
+				heroUnit.gameObject.SetActive(false);
+			}
+		}
 		turnManager.TurnEnd();
 	}
 }

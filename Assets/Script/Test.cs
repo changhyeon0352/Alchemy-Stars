@@ -13,8 +13,8 @@ public class Test : MonoBehaviour
 	public MonsterController monsterController;
 	private void Start()
 	{
-		Tile tile = tilePlate.GetTile(new Vector2Int(0, 4));
-		tile.SetUnit(player, TileState.player);
+		player.Initialize(0, 4);
+
 	}
 	private void Update()
 	{

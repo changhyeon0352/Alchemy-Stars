@@ -11,13 +11,12 @@ public class TilePlate : MonoBehaviour
 	Tile[,] tileGrid;
 
 	public Player Player { get { return player; } }
-	public Vector2Int PlayerPos { get { return player.Pos; } }
 	public Tile[,] TileGrid { get { return tileGrid; } }
 	private void Awake()
 	{
 		enemyList = new List<Monster>();
-		player = FindObjectOfType<Player>();
 		InitializeTilePlate();
+		player = FindObjectOfType<Player>();
 	}
 
 	private void InitializeTilePlate()
@@ -31,7 +30,7 @@ public class TilePlate : MonoBehaviour
 			int i = int.Parse(str[5].ToString());
 			int j = int.Parse(str[7].ToString());
 			int rand = UnityEngine.Random.Range(0, 4);
-			tile.Initialize(i, j, (EelementAttributes)rand);
+			tile.Initialize(i, j, (ElementAttribute)rand);
 			//tile.
 			tileGrid[i, j] = tile;
 		}
@@ -61,10 +60,15 @@ public class TilePlate : MonoBehaviour
 
 	public IEnumerator Move(Unit unit, Tile[] path)
 	{
-		TileState newtileState = unit == player ? TileState.player : TileState.monster;
+		TileState newtileState = unit is HeroUnit ? TileState.player : TileState.monster;
+		
 		GetTile(unit.Pos).SetUnit(null,TileState.empty);
 		yield return StartCoroutine(unit.UnitActualMove(path));
-		GetTile(unit.Pos).SetUnit(unit,newtileState);
+		if (GetTile(unit.Pos).TileState==TileState.empty)
+		{
+			GetTile(unit.Pos).SetUnit(unit, newtileState);
+		}
+		
 	}
 	public void PlaceMonsterAtRandomTile(Unit unit)
 	{
