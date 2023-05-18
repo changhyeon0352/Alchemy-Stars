@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8249ada4604dc249aee603f0d8909f0, type: 3}
+  m_Name: Hero_2_Olivia
+  m_EditorClassIdentifier: 
+  id: 2
+  unitname: "\uC62C\uB9AC\uBE44\uC544"
+  atk: 10
+  hp: 100
+  elementAttribute: 1
+  prefab: {fileID: 5616718141878929932, guid: 06c9737ec63a48d468f3889d63e59648, type: 3}
+  skillData: {fileID: 11400000, guid: 48fb2dfbd59f982449b60da21f5b3bd2, type: 2}

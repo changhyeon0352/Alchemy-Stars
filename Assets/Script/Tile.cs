@@ -82,6 +82,10 @@ public class Tile : MonoBehaviour,IPointerClickHandler,IPointerDownHandler,IPoin
 	}
 	private bool IsAdjacentTile(Tile tile)
 	{
+		if(tile == null)
+		{
+			return false;
+		}
 		bool result = false;
 		if (this == tile)
 			return false;

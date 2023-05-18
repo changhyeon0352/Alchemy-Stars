@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    public UnitData[] heroDatas;
+	[SerializeField]
+    UnitData[] heroDatas;
 	HeroUnit[] heroUnits;
 	HeroUnit leaderUnit;
 	Vector2Int position;
@@ -17,7 +18,9 @@ public class Player : MonoBehaviour
 	int hp;
 	public Vector2Int Pos { get { return position; } }
 	public HeroUnit LeaderUnit { get { return leaderUnit; } }
+	
 	public int Hp { get { return hp; }set { hp = value; } }
+	public UnitData[] HeroDatas { get { return heroDatas; } }
 
 	private void Awake()
 	{
@@ -68,7 +71,13 @@ public class Player : MonoBehaviour
 			}
 		}
 		position = path[path.Length-1].Pos;
-		foreach(HeroUnit heroUnit in heroUnits)
+		for (int i = 0; i < elementUnits.Length; i++)
+		{
+			yield return StartCoroutine(elementUnits[i].ComboSkill(path.Length));
+		
+			
+		}
+		foreach (HeroUnit heroUnit in heroUnits)
 		{
 			heroUnit.SetPosition(position);
 			if(heroUnit!=leaderUnit)

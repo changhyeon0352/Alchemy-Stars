@@ -21,89 +21,100 @@ public class AStarPathfinding
 		}
 	}
 
-	public List<Vector2Int> FindPath(Vector2Int start, Vector2Int goal)
+	public List<List<Vector2Int>> FindPath(Vector2Int[] start, Vector2Int goal)
 	{
-		List<Vector2Int> path = new List<Vector2Int>();
-
-		Node startNode = new Node(start);
-		Node goalNode = new Node(goal);
-
-		// 그리드 초기화
-		//for (int x = 0; x < gridSizeX; x++)
-		//{
-		//	for (int y = 0; y < gridSizeY; y++)
-		//	{
-		//		grid[x, y] = new Node(new Vector2Int(x, y));
-		//	}
-		//}
-
-		// 시작 노드와 목표 노드 설정
-		startNode.gCost = 0;
-		startNode.hCost = CalculateHCost(startNode, goalNode);
-		startNode.CalculateFCost();
-
-		// Open 리스트와 Closed 리스트
-		List<Node> openList = new List<Node>();
-		HashSet<Node> closedSet = new HashSet<Node>();
-
-		openList.Add(startNode);
-
-		while (openList.Count > 0)
+		List<List<Vector2Int>> pathList = new List<List<Vector2Int>>();
+		for (int j=0;j<start.Length;j++)
 		{
-			Node currentNode = openList[0];
+			
+			List<Vector2Int> path = new List<Vector2Int>();
 
-			// Open 리스트에서 예상 비용이 가장 낮은 노드 선택
-			for (int i = 1; i < openList.Count; i++)
+			Node startNode = new Node(start[j]);
+			Node goalNode = new Node(goal);
+
+			// 시작 노드와 목표 노드 설정
+			startNode.gCost = 0; //시작지점에서 현재노드까지의 거리
+			startNode.hCost = CalculateHCost(startNode, goalNode); //임의로 계산한 현재노드부터 도착노드까지의 거리
+			startNode.CalculateFCost(); //g+h 전체거리(임의계산)
+
+			// Open 리스트와 Closed 리스트
+			List<Node> openList = new List<Node>();
+			HashSet<Node> closedSet = new HashSet<Node>();
+
+			openList.Add(startNode);
+
+			while (openList.Count > 0)
 			{
-				if (openList[i].fCost < currentNode.fCost || openList[i].fCost == currentNode.fCost && openList[i].hCost < currentNode.hCost)
+				Node currentNode = openList[0];
+
+				// Open 리스트에서 예상 비용이 가장 낮은 노드 선택
+				for (int i = 1; i < openList.Count; i++)
 				{
-					currentNode = openList[i];
-				}
-			}
-
-			openList.Remove(currentNode);
-			closedSet.Add(currentNode);
-
-			// 목표 위치 도달 시 경로 완성
-			if (currentNode.position == goal)
-			{
-				path = RetracePath(startNode, currentNode);
-				break;
-			}
-
-			// 이웃한 칸들 확인
-			List<Node> neighbors = GetNeighbors(currentNode.position);
-			foreach (Node neighbor in neighbors)
-			{
-				// 장애물(몬스터)인 경우 무시
-				if (neighbor.isObstacle)//IsObstacle()
-				{
-					continue;
-				}
-
-				// Closed 리스트에 있는 경우 무시
-				if (closedSet.Contains(neighbor))
-				{
-					continue;
-				}
-
-				int newCostToNeighbor = currentNode.gCost + CalculateHCost(currentNode, neighbor);
-				if (newCostToNeighbor < neighbor.gCost || !openList.Contains(neighbor))
-				{
-					neighbor.gCost = newCostToNeighbor;
-					neighbor.hCost = CalculateHCost(neighbor, goalNode);
-					neighbor.parent = currentNode;
-					neighbor.CalculateFCost();
-
-					if (!openList.Contains(neighbor))
+					if (openList[i].fCost < currentNode.fCost || openList[i].fCost == currentNode.fCost && openList[i].hCost < currentNode.hCost)
 					{
-						openList.Add(neighbor);
+						currentNode = openList[i];
+					}
+				}
+
+				openList.Remove(currentNode);
+				closedSet.Add(currentNode);
+
+				// 목표 위치 도달 시 경로 완성
+				if (currentNode.position == goal)
+				{
+					path = RetracePath(startNode, currentNode);
+					break;
+				}
+
+				// 이웃한 칸들 확인
+				List<Node> neighbors = GetNeighbors(currentNode.position);//동서남북
+				foreach (Node neighbor in neighbors)
+				{
+					bool isbreak = false;
+					for(int k=0;k<pathList.Count;k++)
+					{
+						if (currentNode.gCost< pathList[k].Count&&currentNode.position == pathList[k][currentNode.gCost])
+						{
+							isbreak = true;
+							break;
+						}
+					}
+					if(isbreak)
+					{
+						continue;
+					}
+					// 이전 몬스터의 path[currentNode.gCost+1]라면 스킵 
+					// 장애물(몬스터)인 경우 무시
+					if (neighbor.isObstacle)//IsObstacle()
+					{
+						continue;
+					}
+
+					// Closed 리스트에 있는 경우 무시
+					if (closedSet.Contains(neighbor))
+					{
+						continue;
+					}
+
+					int newCostToNeighbor = currentNode.gCost + CalculateHCost(currentNode, neighbor);
+					if (newCostToNeighbor < neighbor.gCost || !openList.Contains(neighbor))
+					{
+						neighbor.gCost = newCostToNeighbor;
+						neighbor.hCost = CalculateHCost(neighbor, goalNode);
+						neighbor.parent = currentNode;
+						neighbor.CalculateFCost();
+
+						if (!openList.Contains(neighbor))
+						{
+							openList.Add(neighbor);
+						}
 					}
 				}
 			}
-		}
 
-		return path;
+			pathList.Add(path);
+		}
+		return pathList;
 	}
 
 	private List<Node> GetNeighbors(Vector2Int position)
@@ -151,12 +162,12 @@ public class AStarPathfinding
 		List<Vector2Int> path = new List<Vector2Int>();
 		Node currentNode = endNode;
 
-		while (currentNode != startNode)
+		while (currentNode.parent!=null)
 		{
 			path.Add(currentNode.position);
 			currentNode = currentNode.parent;
 		}
-
+		path.Add(startNode.position);
 		path.Reverse();
 		return path;
 	}

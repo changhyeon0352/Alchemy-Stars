@@ -11,7 +11,15 @@ public class TileConnecter : MonoBehaviour
 	TilePlate tilePlate;
 	ElementAttribute elementAttribute;
 	public ElementAttribute ElementAttribute { get { return elementAttribute; }}
-	public Tile LastTile { get { return connectedTileList[connectedTileList.Count-1]; } }
+	public Tile LastTile { 
+		get {
+			if(connectedTileList== null||connectedTileList.Count==0)
+			{
+				return null;
+			}
+			return connectedTileList[connectedTileList.Count-1]; 
+		} 
+	}
 
 	public bool IsConnetStart { get { return isConnetStart; } }
 
@@ -40,8 +48,8 @@ public class TileConnecter : MonoBehaviour
 	public void AddTile(Tile tile)
 	{
 		connectedTileList.Add(tile);
-		Debug.Log("Add " + tile.Pos);
 		ConnectLine();
+		CheckSkillComboCondition();
 	}
 	public void RemoveFromTileToLast(Tile tile)
 	{
@@ -50,6 +58,7 @@ public class TileConnecter : MonoBehaviour
 			return;
 		connectedTileList.RemoveRange(index, connectedTileList.Count - index);
 		ConnectLine();
+		CheckSkillComboCondition();
 	}
 	public bool IsContainTile(Tile tile)
 	{
@@ -57,14 +66,10 @@ public class TileConnecter : MonoBehaviour
 	}
 	public void EndConneting()
 	{
+		if (connectedTileList == null) { return; }
 		if (connectedTileList.Count > 1)
 		{
 			StartCoroutine(tilePlate.Player.playerMove(connectedTileList.ToArray(), ElementAttribute));
-			//StartCoroutine(tilePlate.Move(tilePlate.Player, connectedTileList.ToArray()));
-			foreach (Tile tile in connectedTileList)
-			{
-				Debug.Log("«ÿ¡¶" + tile.Pos);
-			}
 			connectedTileList.Clear();
 			isConnetStart = false;
 
@@ -91,5 +96,22 @@ public class TileConnecter : MonoBehaviour
 			positions3D[i] = connectedTileList[i].transform.position + Vector3.up * 0.1f;
 		}
 		return positions3D;
+	}
+	private void CheckSkillComboCondition()
+	{
+		foreach(HeroData data in tilePlate.Player.HeroDatas)
+		{
+			if(data.ElementAttribute==elementAttribute||data== tilePlate.Player.LeaderUnit.Data)
+			{
+				Vector2Int[] skillArea= data.SkillData.GetSkillArea(connectedTileList.Count);
+				if(skillArea!=null)
+				{
+					for(int i=0; i<skillArea.Length; i++)
+					{
+						Debug.Log(skillArea[i]);
+					}
+				}
+			}
+		}
 	}
 }

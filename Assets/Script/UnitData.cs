@@ -8,8 +8,8 @@ public class UnitData:ScriptableObject
 	int id;
 	public int ID { get { return id; } }
 	[SerializeField]
-	string name;
-	public string Name { get { return name; } }
+	string unitname;
+	public string Name { get { return unitname; } }
 	[SerializeField]
 	int atk;
 	public int Atk { get { return atk; } }

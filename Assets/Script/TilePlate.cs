@@ -39,6 +39,10 @@ public class TilePlate : MonoBehaviour
 
 	public Tile GetTile(Vector2Int pos)
 	{
+		if(pos.x<0||pos.y<0||pos.x>8||pos.y>8)
+		{
+			return null;
+		}
 		return tileGrid[pos.x, pos.y];
 	}
 	public Vector2Int[] GetAdjacentEnemyTilePos(Vector2Int pos)

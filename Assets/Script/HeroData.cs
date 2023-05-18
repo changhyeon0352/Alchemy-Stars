@@ -1,13 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class HeroData
+[CreateAssetMenu(fileName = "Hero Data", menuName = "Scriptable Object/Hero Data", order = int.MaxValue)]
+public class HeroData: UnitData
 {
-	int id;
-	string name;
-	int atk;
-	int hp;
-	ElementAttribute elementAttribute;
-	//½ºÅ³
+	[SerializeField]
+	SkillData skillData;
+	public SkillData SkillData { get { return skillData; } }
 }

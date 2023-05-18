@@ -18,11 +18,36 @@ public class HeroUnit : Unit
 		}
 	}
 	
+	public IEnumerator ComboSkill(int combo)
+	{
+		animator.SetTrigger("ComboSkill");
+		//스킬 프리팹 실행
+		
+		Vector2Int[] skillArea= (data as HeroData).SkillData.GetSkillArea(combo);
+		if(skillArea == null)
+		{
+			yield break;
+		}
+		yield return new WaitForSeconds(1f);
+		for (int i=0; i<skillArea.Length; i++)
+		{
+			Tile tile= tilePlate.GetTile(position + skillArea[i]);
+			if(tile!=null&&tile.Unit!=null)
+			{
+				tile.Unit.TakeDamage((int)(data.Atk * (data as HeroData).SkillData.damageMultiple));
+			}
+
+		}
+
+
+	}
 	public override IEnumerator UnitActualMove(Tile[] pathTiles)
 	{
-		animator.SetInteger("State", (int)State.Run);
+		
 		float sec = 0.5f;
+		animator.SetInteger("State", (int)State.Idle);
 		yield return StartCoroutine(Attack(tilePlate.GetAdjacentEnemyTilePos(tilePlate.Player.Pos)));
+		animator.SetInteger("State", (int)State.Run);
 		//sec 초 동안  connectedPoss[i]에서 connectedPoss[i+1]로 이동하게 구현해봐
 		for (int i = 0; i < pathTiles.Length-1; i++)
 		{
