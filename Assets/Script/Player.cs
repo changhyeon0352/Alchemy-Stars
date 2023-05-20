@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
 	Vector2Int position;
 	TilePlate tilePlate;
 	TurnManager turnManager;
+	public GameObject hpbarPrefab;
+	public Transform hpbarTr;
 
 	int hpMax;
 	int hp;
@@ -33,6 +35,7 @@ public class Player : MonoBehaviour
 	{
 		position = new Vector2Int(x, y);
 		heroUnits=new HeroUnit[heroDatas.Length];
+		UnitHpBar hpbar = Instantiate(hpbarPrefab, hpbarTr).GetComponent<UnitHpBar>();
 		
 		for(int i = 0; i < heroDatas.Length; i++)
 		{
@@ -44,10 +47,13 @@ public class Player : MonoBehaviour
 			{
 				heroUnits[i].gameObject.SetActive(false);
 			}
-			
+			heroUnits[i].SetHpbar(hpbar);
 		}
 		hp = hpMax;
 		leaderUnit = heroUnits[0];
+		hpbar.SetUnitInfo(leaderUnit);
+		
+
 		Tile tile = tilePlate.GetTile(Pos);
 		tile.SetUnit(LeaderUnit,TileState.player);
 		leaderUnit.transform.position = tile.transform.position;

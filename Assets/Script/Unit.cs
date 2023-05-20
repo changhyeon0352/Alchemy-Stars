@@ -5,12 +5,12 @@ using UnityEngine;
 public abstract class Unit : MonoBehaviour
 {
 	protected int hp;
-	protected int hpMax=100;
 	protected Vector2Int position;
 	protected Animator animator;
 	protected TilePlate tilePlate;
 	protected Unit enemy;
 	protected UnitData data;
+	protected UnitHpBar hpBar;
 
 	public UnitData Data { get { return data; } }
 	public virtual Vector2Int Pos { get { return position; } }
@@ -23,8 +23,7 @@ public abstract class Unit : MonoBehaviour
 	public void Initialize(UnitData data)
 	{
 		this.data = data;
-		hpMax = data.HP;
-		hp = hpMax;
+		hp = data.HP;
 	}
 
 	public abstract IEnumerator UnitActualMove(Tile[] pathTiles);
@@ -38,6 +37,7 @@ public abstract class Unit : MonoBehaviour
 	{
 		animator.SetTrigger("Hit");
 		Hp -= damage;
+		hpBar.UpdateHpBar(Hp, data.HP);
 		if (Hp <= 0)
 		{
 			Debug.Log($"{data.Name}°¡ Á×¾ú´Ù");
@@ -64,5 +64,9 @@ public abstract class Unit : MonoBehaviour
 	{
 		enemy.TakeDamage(data.Atk);
 		enemy = null;
+	}
+	public void SetHpbar(UnitHpBar hpbar)
+	{
+		this.hpBar = hpbar;
 	}
 }

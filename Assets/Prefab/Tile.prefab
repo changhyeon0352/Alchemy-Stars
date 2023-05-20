@@ -112,7 +112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   colorMaterials:
-  - {fileID: 2100000, guid: 5bd5f19e5177ab1409469f84b3fc8582, type: 2}
+  - {fileID: 2100000, guid: 4f97778f80e6d1345bb4bb4573249931, type: 2}
   - {fileID: 2100000, guid: 22dc7ecc91491c54c974bdb09c716af3, type: 2}
   - {fileID: 2100000, guid: 07e5a1168e515854a95d33ea9dc4da33, type: 2}
   - {fileID: 2100000, guid: d0fa02e1fd42aae4d97856c10c72a99e, type: 2}

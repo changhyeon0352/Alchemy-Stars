@@ -11,6 +11,8 @@ public class MonsterController : MonoBehaviour
 	TilePlate tilePlate;
 	public GameObject EnemyPrefab;
 	public UnitData unitData;
+	public GameObject hpBarPrefab;
+	public Transform hpbarTr;
 	private void Awake()
 	{
 		tilePlate = FindObjectOfType<TilePlate>();
@@ -65,6 +67,9 @@ public class MonsterController : MonoBehaviour
 		unit.Initialize(unitData);
 		monsterList.Add(unit);
 		tilePlate.PlaceMonsterAtRandomTile(unit);
+		UnitHpBar hpbar= Instantiate(hpBarPrefab,hpbarTr).GetComponent<UnitHpBar>();
+		hpbar.SetUnitInfo(unit);
+		unit.SetHpbar(hpbar);
 
 	}
 

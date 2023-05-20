@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,7 +7,9 @@ public class UnitHpBar : MonoBehaviour
 {
     [SerializeField]
     Image hpImg;
-    Transform unitTr;
+	Unit unit;
+	[Range(0f, 100f)]
+	public float up=25;
 
     public void UpdateHpBar(int hp,int hpMax)
     {
@@ -14,11 +17,11 @@ public class UnitHpBar : MonoBehaviour
     }
     private void Update()
     {
-        transform.position = Camera.main.WorldToScreenPoint(unitTr.transform.position + Vector3.left);
+        transform.position = Camera.main.WorldToScreenPoint(unit.transform.position+ Vector3.up);
     }
 
     public void SetUnitInfo(Unit unit)
     {
-        unitTr = unit.transform;
+        this.unit = unit;
     }
 }
